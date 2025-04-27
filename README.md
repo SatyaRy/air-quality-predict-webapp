@@ -9,8 +9,33 @@ A web application that predicts the Air Quality Index (AQI) based on climate and
 - RESTful API for programmatic access to predictions.
 
 ## Table of Contents
+- [Installation](#installation)
 - [Project Structure](#project-structure)
 - [Model Training](#model-training)
+
+## Installation
+
+### Prerequisites
+- Python 3.8+
+- Node.js 16+
+- pip and npm
+- Git
+### Steps
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/SatyaRy/air-quality-predict-webapp.git
+   cd air-quality-predict-webapp
+**Set Up the Backend:
+
+``` bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate  
+# On Windows: venv\Scripts\activate
+# On Mac: source .venv/bin/activate
+pip install -r requirements.txt
+```
+
 
 ## Project Structure
 ```bash
