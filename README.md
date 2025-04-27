@@ -11,23 +11,24 @@ A web application that predicts the Air Quality Index (AQI) based on climate and
 ## Table of Contents
 - [Project Structure](#project-structure)
 - [Model Training](#model-training)
-- [API Documentation](#api-documentation)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgments](#acknowledgments)
 
 ## Project Structure
 ```bash
-air-quality-predict-webapp/
-├── backend/                  # FastAPI backend
-│   ├── models/               # Pre-trained ML model files
-│   ├── main.py               # Main FastAPI application
-│   ├── requirements.txt      # Python dependencies
-│   └── data/                 # Datasets or scripts for data preprocessing
-├── frontend/                 # React frontend
-│   ├── src/                  # React components and logic
-│   ├── public/               # Static assets
-│   └── package.json          # Node.js dependencies
-├── docs/                     # Documentation (e.g., API specs, screenshots)
-└── README.md                 # Project documentation
+└── air-quality-predict-webapp/
+    ├── src/
+    │   ├── controller/
+    │   │   └── air_quality.py
+    │   ├── database/
+    │   │   └── config.py
+    │   ├── model/
+    │   │   ├── global_air_quality.csv
+    │   │   ├── xgboost_pm25_model.pkl
+    │   │   └── train_model.py
+    │   └── schemas/
+    │       └── air_quality_schema.py
+    ├── main.py
+    ├── test/
+    │   └── test.py
+    ├── requirements.txt
+    └── vercel.json
 ```
