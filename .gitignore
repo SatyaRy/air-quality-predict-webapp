@@ -91,3 +91,4 @@ tmp/
 *.dump
 *.bson
 *.backup
+.vercel
