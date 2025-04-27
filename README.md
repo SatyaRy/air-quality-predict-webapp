@@ -17,7 +17,7 @@ A web application that predicts the Air Quality Index (AQI) based on climate and
 - [Acknowledgments](#acknowledgments)
 
 ## Project Structure
-
+```bash
 air-quality-predict-webapp/
 ├── backend/                  # FastAPI backend
 │   ├── models/               # Pre-trained ML model files
@@ -30,4 +30,4 @@ air-quality-predict-webapp/
 │   └── package.json          # Node.js dependencies
 ├── docs/                     # Documentation (e.g., API specs, screenshots)
 └── README.md                 # Project documentation
-
+```
