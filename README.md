@@ -25,8 +25,7 @@ A web application that predicts the Air Quality Index (AQI) based on climate and
    ```bash
    git clone https://github.com/SatyaRy/air-quality-predict-webapp.git
    cd air-quality-predict-webapp
-**Set Up the Backend:
-
+2. **Set Up the Backend**:
 ``` bash
 cd backend
 python -m venv .venv
@@ -35,7 +34,14 @@ source .venv/bin/activate
 # On Mac: source .venv/bin/activate
 pip install -r requirements.txt
 ```
-
+3. **Usage**:
+Start the backend server:
+``` bash
+cd backend
+uvicorn main:app --reload
+FastAPI runs on http://localhost:8000.
+API docs available at http://localhost:8000/docs.
+```
 
 ## Project Structure
 ```bash
