@@ -10,7 +10,7 @@ import {
   Title,
   Tooltip,
   Legend,
-  CategoryScale, // Ensure this is imported
+  CategoryScale,
 } from "chart.js";
 
 // Register Chart.js components
@@ -18,7 +18,7 @@ ChartJS.register(
   LineElement,
   PointElement,
   LinearScale,
-  CategoryScale, // Ensure this is registered
+  CategoryScale,
   Title,
   Tooltip,
   Legend
@@ -49,41 +49,64 @@ class ChartErrorBoundary extends React.Component {
 }
 
 function Performance() {
-  // Static performance metrics (no backend endpoint yet)
+  // State for chart data and metrics
+  const [chartData, setChartData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [mae, setMae] = useState(null);
+  const [rmse, setRmse] = useState(null);
+
+  // Sample inputs for 10 predictions, matching PM25Input schema
+  const sampleInputs = Array.from({ length: 10 }, (_, i) => ({
+    AQI: 40 + i * 5, // 40 to 85
+    PM10_μgm3: 20 + i * 3, // 20 to 47
+    NO2_ppb: 15 + i * 2, // 15 to 33
+    SO2_ppb: 5 + i * 1, // 5 to 14
+    CO_ppm: 0.2 + i * 0.1, // 0.2 to 1.1
+    O3_ppb: 10 + i * 2, // 10 to 28
+    Temperature_C: 20 + i * 1, // 20 to 29
+    Humidity_: 50 + i * 2, // 50 to 68
+    Wind_Speed_ms: 1 + i * 0.5, // 1 to 5.5
+    PM25_1hr_ago: 15 + i * 1, // 15 to 24
+    PM25_2hr_ago: 14 + i * 1, // 14 to 23
+    pm25_rolling_mean3: 14.5 + i * 1, // 14.5 to 23.5
+    PM25_μgm3: 16 + i * 2, // 16 to 34 (used as actual PM2.5)
+  }));
+
+  // Metrics array, dynamically updated
   const metrics = [
     {
       title: "Mean Absolute Error (MAE)",
-      value: "3.45",
+      value: mae !== null ? mae : "N/A",
       unit: "µg/m³",
       description: "Measures average prediction error magnitude.",
     },
     {
       title: "Root Mean Squared Error (RMSE)",
-      value: "4.12",
+      value: rmse !== null ? rmse : "N/A",
       unit: "µg/m³",
       description: "Emphasizes larger prediction errors.",
     },
   ];
 
-  // State for chart data
-  const [chartData, setChartData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  // Functions to calculate MAE and RMSE
+  const calculateMAE = (actual, predicted) => {
+    if (actual.length !== predicted.length) return null;
+    const sum = actual.reduce(
+      (acc, val, i) => acc + Math.abs(val - predicted[i]),
+      0
+    );
+    return (sum / actual.length).toFixed(2);
+  };
 
-  // Sample inputs for 10 predictions (simulating different conditions)
-  const sampleInputs = Array.from({ length: 10 }, (_, i) => ({
-    AQI: 40 + i * 5, // Vary AQI from 40 to 85
-    PM10_μgm3: 20 + i * 3, // Vary PM10 from 20 to 47
-    NO2_ppb: 15 + i * 2, // Vary NO2 from 15 to 33
-    Temperature_C: 20 + i * 1, // Vary temperature from 20 to 29
-    Humidity_: 50 + i * 2, // Vary humidity from 50 to 68
-    Wind_Speed_ms: 1 + i * 0.5, // Vary wind speed from 1 to 5.5
-  }));
-
-  // Simulate actual PM2.5 values (for demo purposes)
-  const actualValues = sampleInputs.map(
-    (input, i) => input.PM10_μgm3 * 0.5 + i * 2
-  ); // Simplified simulation
+  const calculateRMSE = (actual, predicted) => {
+    if (actual.length !== predicted.length) return null;
+    const sum = actual.reduce(
+      (acc, val, i) => acc + Math.pow(val - predicted[i], 2),
+      0
+    );
+    return Math.sqrt(sum / actual.length).toFixed(2);
+  };
 
   useEffect(() => {
     const fetchPredictions = async () => {
@@ -94,6 +117,7 @@ function Performance() {
         const predictions = await Promise.all(
           sampleInputs.map(async (input, index) => {
             try {
+              console.log(`Sending input ${index + 1}:`, input);
               const response = await axios.post(
                 "http://localhost:8000/api/v1/predict",
                 input
@@ -102,25 +126,37 @@ function Performance() {
               return response.data.predicted_pm25;
             } catch (err) {
               console.error(`Error in prediction ${index + 1}:`, err);
-              throw err;
+              return null; // Handle individual prediction failure
             }
           })
         );
 
+        // Filter out failed predictions and corresponding actual values
+        const actualValues = sampleInputs.map((input) => input.PM25_μgm3);
+        const validIndices = predictions
+          .map((pred, i) => (pred !== null ? i : -1))
+          .filter((i) => i !== -1);
+        const validPredictions = validIndices.map((i) => predictions[i]);
+        const validActualValues = validIndices.map((i) => actualValues[i]);
+
+        if (validPredictions.length === 0) {
+          throw new Error("No valid predictions received.");
+        }
+
         // Prepare chart data
         const newChartData = {
-          labels: Array.from({ length: 10 }, (_, i) => `Sample ${i + 1}`),
+          labels: validIndices.map((i) => `Sample ${i + 1}`),
           datasets: [
             {
               label: "Actual PM2.5",
-              data: actualValues,
+              data: validActualValues,
               borderColor: "blue",
               fill: false,
               tension: 0.1,
             },
             {
               label: "Predicted PM2.5",
-              data: predictions,
+              data: validPredictions,
               borderColor: "red",
               fill: false,
               tension: 0.1,
@@ -129,9 +165,17 @@ function Performance() {
         };
         console.log("Chart data prepared:", newChartData);
         setChartData(newChartData);
+
+        // Calculate metrics
+        const maeValue = calculateMAE(validActualValues, validPredictions);
+        const rmseValue = calculateRMSE(validActualValues, validPredictions);
+        setMae(maeValue);
+        setRmse(rmseValue);
       } catch (err) {
         const errorMessage =
-          err.response?.data?.detail || "Error fetching predictions";
+          err.response?.data?.detail ||
+          err.message ||
+          "Error fetching predictions";
         console.error("Fetch predictions error:", errorMessage);
         setError(errorMessage);
       } finally {
@@ -140,13 +184,21 @@ function Performance() {
     };
     fetchPredictions();
 
-    // Cleanup on unmount to prevent memory leaks
+    // Cleanup on unmount
     return () => {
-      setChartData(null); // Reset chart data
+      setChartData(null);
+      setMae(null);
+      setRmse(null);
     };
   }, []);
 
-  console.log("Rendering Performance component", { chartData, loading, error });
+  console.log("Rendering Performance component", {
+    chartData,
+    loading,
+    error,
+    mae,
+    rmse,
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white pt-20">
@@ -157,7 +209,7 @@ function Performance() {
             Model Performance
           </h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-            Evaluate the accuracy of our air quality prediction models using key
+            Evaluate the accuracy of our air quality prediction model using key
             metrics and visualizations.
           </p>
         </section>
@@ -188,13 +240,16 @@ function Performance() {
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-8">
             Actual vs. Predicted PM2.5
           </h2>
+          <p className="text-gray-600 mb-6">
+            Note: Actual PM2.5 values are simulated for demonstration purposes.
+          </p>
           {loading && <p className="text-gray-600 mb-6">Loading chart...</p>}
           {error && <p className="text-red-500 mb-6">Error: {error}</p>}
           {!loading && !error && chartData ? (
             <ChartErrorBoundary>
               <div className="bg-white rounded-xl p-8 max-w-4xl mx-auto shadow-md">
                 <Line
-                  key={JSON.stringify(chartData)} // Force re-render on data change
+                  key={JSON.stringify(chartData)}
                   data={chartData}
                   options={{
                     responsive: true,
@@ -207,7 +262,7 @@ function Performance() {
                     },
                     scales: {
                       x: {
-                        type: "category", // Explicitly set scale type
+                        type: "category",
                         title: {
                           display: true,
                           text: "Sample Number",
