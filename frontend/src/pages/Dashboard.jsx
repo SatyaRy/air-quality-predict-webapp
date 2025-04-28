@@ -82,7 +82,20 @@ function Dashboard() {
       title: "PM2.5",
       value: pm25 !== null ? pm25.toFixed(2) : "N/A",
       unit: "µg/m³",
-      status: pm25 !== null ? (pm25 > 50 ? "Moderate" : "Good") : "Unknown",
+      status:
+        pm25 !== null
+          ? pm25 <= 12
+            ? "Good"
+            : pm25 <= 35.4
+            ? "Moderate"
+            : pm25 <= 55.4
+            ? "Unhealthy for Sensitive Groups"
+            : pm25 <= 150.4
+            ? "Unhealthy"
+            : pm25 <= 250.4
+            ? "Very Unhealthy"
+            : "Hazardous"
+          : "Unknown",
     },
   ];
 
