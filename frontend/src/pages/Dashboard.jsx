@@ -135,7 +135,7 @@ function Dashboard() {
     label = label.replace("Temperature", "Temperature (°C)");
     return label;
   };
-
+  // new AQI
   const data = [
     {
       title: "PM2.5",
