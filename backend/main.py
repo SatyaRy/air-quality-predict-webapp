@@ -8,13 +8,20 @@ from mangum import Mangum
 app = FastAPI()
 
 # Add CORS middleware to allow requests from the frontend
+from fastapi.middleware.cors import CORSMiddleware
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Allow your frontend origin
+    allow_origins=[
+        "http://localhost",
+        "http://127.0.0.1"
+    ],
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1)(:\d+)?",  # Allows any port on localhost
     allow_credentials=True,
-    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
-    allow_headers=["*"],  # Allow all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
+
 
 # Include your routers
 app.include_router(airQuality)

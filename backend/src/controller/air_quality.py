@@ -3,12 +3,10 @@ from src.schemas.air_quality_schema import PM25Input
 import pandas as pd
 import datetime
 import joblib
-airQuality = APIRouter(
-)
+airQuality = APIRouter()
 @airQuality.get("/")
 async def root():
     return {"message":"success"}
-
 #model 
 model = joblib.load("src/model/xgboost_pm25_model.pkl")
 @airQuality.post("/api/v1/predict")
