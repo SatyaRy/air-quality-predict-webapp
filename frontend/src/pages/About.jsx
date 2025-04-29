@@ -26,12 +26,12 @@ const teamMembers = [
   {
     name: "Sok Sreynuth",
     role: "Data Science and AI",
-    image: "/team/chhai.jpg",
+    image: "/team/sreynut.jpg",
   },
   {
     name: "Hinsamrech Reajiny",
     role: "Data Science and AI",
-    image: "/team/malis.jpg",
+    image: "/team/reajiny.jpg",
   },
 ];
 

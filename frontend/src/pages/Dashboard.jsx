@@ -11,31 +11,31 @@ import {
 } from "react-icons/fa";
 
 const getAdvice = (pm25) => {
-  if (pm25 <= 12) {
+  if (pm25 <= 49.9) {
     return {
       text: "Breathe easy! The air is fresh and healthy. A perfect day for outdoor activities.",
       icon: <FaCheckCircle className="inline-block mr-2" size={20} />,
       color: "text-green-600",
     };
-  } else if (pm25 <= 35.4) {
+  } else if (pm25 <= 99.9) {
     return {
       text: "Air quality is acceptable, but a few sensitive individuals may feel mild effects. Keep enjoying your day!",
       icon: <FaExclamationCircle className="inline-block mr-2" size={20} />,
       color: "text-yellow-600",
     };
-  } else if (pm25 <= 55.4) {
+  } else if (pm25 <= 149.9) {
     return {
       text: "If you have respiratory conditions, consider limiting outdoor exertion. Others can still enjoy normal activities.",
       icon: <FaExclamationTriangle className="inline-block mr-2" size={20} />,
       color: "text-orange-600",
     };
-  } else if (pm25 <= 150.4) {
+  } else if (pm25 <= 199.9) {
     return {
       text: "Everyone may start to feel health effects. It's a good idea to reduce prolonged outdoor activities.",
       icon: <FaRadiation className="inline-block mr-2" size={20} />,
       color: "text-red-600",
     };
-  } else if (pm25 <= 250.4) {
+  } else if (pm25 <= 299.9) {
     return {
       text: "Serious health effects possible for everyone. Stay indoors as much as possible and wear a mask if outside.",
       icon: <FaSkullCrossbones className="inline-block mr-2" size={20} />,
@@ -143,15 +143,15 @@ function Dashboard() {
       unit: "µg/m³",
       status:
         pm25 !== null
-          ? pm25 <= 12
+          ? pm25 <= 49.9
             ? "Good"
-            : pm25 <= 35.4
+            : pm25 <= 99.9
             ? "Moderate"
-            : pm25 <= 55.4
+            : pm25 <= 149.9
             ? "Unhealthy for Sensitive Groups"
-            : pm25 <= 150.4
+            : pm25 <= 199.9
             ? "Unhealthy"
-            : pm25 <= 250.4
+            : pm25 <= 299.9
             ? "Very Unhealthy"
             : "Hazardous"
           : "Unknown",
