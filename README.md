@@ -44,8 +44,7 @@ API docs available at http://localhost:8000/docs.
 ```
 
 ## Project Structure 
-### Features
--  `
+
 ```bash
 └── air-quality-predict-webapp/
     ├── src/
@@ -65,3 +64,53 @@ API docs available at http://localhost:8000/docs.
     ├── requirements.txt
     └── vercel.json
 ```
+## Controller
+### 1. GET /
+# - Purpose: 
+A simple root endpoint to check if the API is running correctly.
+# - Response:
+Returns `{ "message": "success" }` when accessed.
+
+### 2. POST `/api/v1/predict`
+   - Purpose:
+     
+  Accepts input air quality data and predicts the PM2.5 value
+   - Steps:
+     
+1. Receive input:
+   
+   Expects a JSON payload matching the `PM25Input` schema.
+2. Preprocess the input:
+   
+   - Converts input into a Pandas DataFrame.
+     
+   - Automatically adds current `hour`, `month`, `day`, `dayofweek`, and `is_weekend` values based on the system data and time.
+     
+   - Adjusts the column `PM10_μgm3` to `PM10_µgm³` for model compatibility.
+3. Validate features:
+   
+   Checks that all required features are present for the model to predict properly.
+
+4. Make prediction:
+
+   Uses the loaded XGBoost model (`xgboost_pm25_model.pkl`) to predict the PM2.5 level.
+
+5. Return the result:
+
+   Sends back the predicted PM2.5 value and a success message.
+
+- Error handling:
+
+   If any error occurs during preprocessing or prediction, it returns a 400 HTTP error with a detailed message. 
+
+# Other Components Used
+- `joblib` to load the machine learning model.
+- `pandas` to format the manipulate data.
+- `datetime` to add real-time features.
+- `air_quality_schema.py` defines the input schema (`PM25Input`) that ensures the incoming data is validated properly.
+
+
+
+
+
+}
