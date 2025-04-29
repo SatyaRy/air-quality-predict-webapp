@@ -1,9 +1,74 @@
 import React, { useState } from "react";
 import axios from "axios";
 import AQICard from "../components/AQICard";
+import {
+  FaCheckCircle,
+  FaExclamationCircle,
+  FaExclamationTriangle,
+  FaRadiation,
+  FaSkullCrossbones,
+  FaBiohazard,
+} from "react-icons/fa";
+
+const getAdvice = (pm25) => {
+  if (pm25 <= 49.9) {
+    return {
+      text: "Breathe easy! The air is fresh and healthy. A perfect day for outdoor activities.",
+      icon: <FaCheckCircle className="inline-block mr-2" size={20} />,
+      color: "text-green-600",
+    };
+  } else if (pm25 <= 99.9) {
+    return {
+      text: "Air quality is acceptable, but a few sensitive individuals may feel mild effects. Keep enjoying your day!",
+      icon: <FaExclamationCircle className="inline-block mr-2" size={20} />,
+      color: "text-yellow-600",
+    };
+  } else if (pm25 <= 149.9) {
+    return {
+      text: "If you have respiratory conditions, consider limiting outdoor exertion. Others can still enjoy normal activities.",
+      icon: <FaExclamationTriangle className="inline-block mr-2" size={20} />,
+      color: "text-orange-600",
+    };
+  } else if (pm25 <= 199.9) {
+    return {
+      text: "Everyone may start to feel health effects. It's a good idea to reduce prolonged outdoor activities.",
+      icon: <FaRadiation className="inline-block mr-2" size={20} />,
+      color: "text-red-600",
+    };
+  } else if (pm25 <= 299.9) {
+    return {
+      text: "Serious health effects possible for everyone. Stay indoors as much as possible and wear a mask if outside.",
+      icon: <FaSkullCrossbones className="inline-block mr-2" size={20} />,
+      color: "text-purple-600",
+    };
+  } else {
+    return {
+      text: "Dangerous air quality! Avoid going outside. Protect your health by staying indoors with filtered air.",
+      icon: <FaBiohazard className="inline-block mr-2" size={20} />,
+      color: "text-gray-900",
+    };
+  }
+};
+
+const AirQualityAdvice = ({ pm25 }) => {
+  if (!pm25) return null;
+  const advice = getAdvice(pm25);
+  return (
+    <section className="mt-8 max-w-md mx-auto">
+      <div className="bg-white p-6 rounded-xl shadow-lg text-center">
+        <h2 className="text-xl font-bold text-gray-800 mb-4">
+          Air Quality Advice
+        </h2>
+        <p className={`flex items-center justify-center ${advice.color}`}>
+          {advice.icon}
+          {advice.text}
+        </p>
+      </div>
+    </section>
+  );
+};
 
 function Dashboard() {
-  // State for form inputs matching PM25Input schema
   const [formData, setFormData] = useState({
     AQI: 50,
     PM10_μgm3: 30,
@@ -20,12 +85,10 @@ function Dashboard() {
     pm25_rolling_mean3: 19.5,
   });
 
-  // State for prediction result and UI feedback
   const [pm25, setPm25] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -34,13 +97,11 @@ function Dashboard() {
     }));
   };
 
-  // Handle form submission to fetch PM2.5 prediction
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     setPm25(null);
-
     try {
       const response = await axios.post(
         "http://localhost:8000/api/v1/predict",
@@ -62,7 +123,6 @@ function Dashboard() {
     }
   };
 
-  // Format labels for input fields
   const formatLabel = (key) => {
     let label = key.replace(/_/g, " ");
     label = label.replace("μgm3", "µg/m³");
@@ -75,8 +135,7 @@ function Dashboard() {
     label = label.replace("Temperature", "Temperature (°C)");
     return label;
   };
-
-  // Data for displaying PM2.5 result
+  // new AQI
   const data = [
     {
       title: "PM2.5",
@@ -84,15 +143,15 @@ function Dashboard() {
       unit: "µg/m³",
       status:
         pm25 !== null
-          ? pm25 <= 12
+          ? pm25 <= 49.9
             ? "Good"
-            : pm25 <= 35.4
+            : pm25 <= 99.9
             ? "Moderate"
-            : pm25 <= 55.4
+            : pm25 <= 149.9
             ? "Unhealthy for Sensitive Groups"
-            : pm25 <= 150.4
+            : pm25 <= 199.9
             ? "Unhealthy"
-            : pm25 <= 250.4
+            : pm25 <= 299.9
             ? "Very Unhealthy"
             : "Hazardous"
           : "Unknown",
@@ -102,7 +161,6 @@ function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-200 via-purple-100 to-green-100 pt-20">
       <div className="container mx-auto px-6 py-16">
-        {/* Header */}
         <section className="text-center mb-12">
           <h1 className="text-4xl font-extrabold text-blue-900 mb-4">
             Air Quality Dashboard
@@ -112,7 +170,6 @@ function Dashboard() {
           </p>
         </section>
 
-        {/* Prediction Form */}
         <section className="mb-12 max-w-3xl mx-auto">
           <div className="bg-white p-8 rounded-xl shadow-lg">
             <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
@@ -159,7 +216,6 @@ function Dashboard() {
           </div>
         </section>
 
-        {/* Error Display */}
         {error && (
           <div className="text-center mb-8">
             <p className="text-red-500 bg-red-100 p-4 rounded-lg inline-block">
@@ -168,7 +224,6 @@ function Dashboard() {
           </div>
         )}
 
-        {/* Result Display */}
         <section className="grid grid-cols-1 gap-6 max-w-xs mx-auto">
           {data.map((item, index) => (
             <div key={index}>
@@ -181,6 +236,8 @@ function Dashboard() {
             </div>
           ))}
         </section>
+
+        <AirQualityAdvice pm25={pm25} />
       </div>
     </div>
   );
