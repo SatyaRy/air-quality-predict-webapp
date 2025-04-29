@@ -66,9 +66,9 @@ API docs available at http://localhost:8000/docs.
 ```
 ## Controller
 ### 1. GET /
-# - Purpose: 
+# Purpose: 
 A simple root endpoint to check if the API is running correctly.
-# - Response:
+# Response:
 Returns `{ "message": "success" }` when accessed.
 
 ### 2. POST `/api/v1/predict`
