@@ -30,7 +30,6 @@ async def createData(data: PM25Input):
             'Temperature', 'Humidity', 'WindSpeedkmh', 'Visibility', 'Pressure',
             'so2', 'no2', 'Rainfall', 'PM10', 'AQI'
         ]
-
         # Check for missing features
         missing_features = [f for f in required_features if f not in input_data.columns]
         if missing_features:
