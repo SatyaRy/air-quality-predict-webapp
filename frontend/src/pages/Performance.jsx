@@ -55,22 +55,25 @@ function Performance() {
   const [mae, setMae] = useState(null);
   const [rmse, setRmse] = useState(null);
 
-  // Sample inputs for 10 predictions, matching the model's required features
-  const sampleInputs = Array.from({ length: 10 }, (_, i) => ({
-    Temperature: 20 + i * 1, // 20 to 29 (°C)
-    Humidity: 50 + i * 2, // 50 to 68 (%)
-    Pressure: 1008 + i * 1, // 1008 to 1017 (hPa)
-    Wind_Speed_kmh: 5 + i * 1, // 5 to 14 (km/h)
-    Visibility: 8 + i * 0.5, // 8 to 12.5 (km)
-    Rainfall: 0 + i * 0.2, // 0 to 1.8 (mm)
-    so2: 5 + i * 1, // 5 to 14 (ppb)
-    no2: 15 + i * 2, // 15 to 33 (ppb)
-    PM10: 20 + i * 3, // 20 to 47 (µg/m³)
-    AQI: 40 + i * 5, // 40 to 85
+  // Sample inputs for 100 predictions, matching the model's required features
+  const sampleInputs = Array.from({ length: 100 }, (_, i) => ({
+    Temperature: 20 + (i % 10) * 1, // Cycles through 20 to 29 (°C)
+    Humidity: 50 + (i % 10) * 2, // Cycles through 50 to 68 (%)
+    Pressure: 1008 + (i % 10) * 1, // Cycles through 1008 to 1017 (hPa)
+    Wind_Speed_kmh: 5 + (i % 10) * 1, // Cycles through 5 to 14 (km/h)
+    Visibility: 8 + (i % 10) * 0.5, // Cycles through 8 to 12.5 (km)
+    Rainfall: 0 + (i % 10) * 0.2, // Cycles through 0 to 1.8 (mm)
+    so2: 5 + (i % 10) * 1, // Cycles through 5 to 14 (ppb)
+    no2: 15 + (i % 10) * 2, // Cycles through 15 to 33 (ppb)
+    PM10: 20 + (i % 10) * 3, // Cycles through 20 to 47 (µg/m³)
+    AQI: 40 + (i % 10) * 5, // Cycles through 40 to 85
   }));
 
   // Simulated actual PM2.5 values for MAE and RMSE calculations
-  const simulatedActualPM25 = Array.from({ length: 10 }, (_, i) => 10 + i * 2); // 10 to 28 (µg/m³)
+  const simulatedActualPM25 = Array.from(
+    { length: 100 },
+    (_, i) => 10 + (i % 10) * 2
+  ); // Cycles through 10 to 28 (µg/m³)
 
   // Metrics array, dynamically updated
   const metrics = [
@@ -210,7 +213,7 @@ function Performance() {
           </h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
             Evaluate the accuracy of our air quality prediction model using key
-            metrics and visualizations.
+            metrics and visualizations for 100 simulated samples.
           </p>
         </section>
 
@@ -252,13 +255,13 @@ function Performance() {
         {/* Chart Section */}
         <section className="text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-8">
-            Actual vs. Predicted PM2.5
+            Actual vs. Predicted PM2.5 (100 Samples)
           </h2>
           {loading && <p className="text-gray-600 mb-6">Loading chart...</p>}
           {error && <p className="text-red-500 mb-6">Error: {error}</p>}
           {!loading && !error && chartData ? (
             <ChartErrorBoundary>
-              <div className="bg-white rounded-xl p-8 max-w-4xl mx-auto shadow-md">
+              <div className="bg-white rounded-xl p-8 max-w-5xl mx-auto shadow-md">
                 <Line
                   key={JSON.stringify(chartData)}
                   data={chartData}
@@ -268,7 +271,13 @@ function Performance() {
                       legend: { position: "top" },
                       title: {
                         display: true,
-                        text: "Actual vs Predicted PM2.5 (µg/m³)",
+                        text: "Actual vs Predicted PM2.5 (µg/m³) for 100 Samples",
+                        font: { size: 18 },
+                      },
+                      tooltip: {
+                        enabled: true,
+                        mode: "index",
+                        intersect: false,
                       },
                     },
                     scales: {
@@ -278,6 +287,16 @@ function Performance() {
                           display: true,
                           text: "Sample Number",
                         },
+                        ticks: {
+                          callback: function (value, index) {
+                            // Show every 10th label to avoid clutter
+                            return index % 10 === 0
+                              ? `Sample ${index + 1}`
+                              : "";
+                          },
+                          maxRotation: 45,
+                          minRotation: 45,
+                        },
                       },
                       y: {
                         title: {
@@ -285,6 +304,7 @@ function Performance() {
                           text: "PM2.5 (µg/m³)",
                         },
                         beginAtZero: true,
+                        suggestedMax: 50, // Adjust based on expected PM2.5 range
                       },
                     },
                   }}
