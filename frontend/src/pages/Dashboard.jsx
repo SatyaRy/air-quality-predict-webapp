@@ -11,31 +11,31 @@ import {
 } from "react-icons/fa";
 
 const getAdvice = (pm25) => {
-  if (pm25 <= 49.9) {
+  if (pm25 <= 12.0) {
     return {
       text: "Breathe easy! The air is fresh and healthy. A perfect day for outdoor activities.",
       icon: <FaCheckCircle className="inline-block mr-2" size={20} />,
       color: "text-green-600",
     };
-  } else if (pm25 <= 99.9) {
+  } else if (pm25 <= 35.4) {
     return {
       text: "Air quality is acceptable, but a few sensitive individuals may feel mild effects. Keep enjoying your day!",
       icon: <FaExclamationCircle className="inline-block mr-2" size={20} />,
       color: "text-yellow-600",
     };
-  } else if (pm25 <= 149.9) {
+  } else if (pm25 <= 55.4) {
     return {
       text: "If you have respiratory conditions, consider limiting outdoor exertion. Others can still enjoy normal activities.",
       icon: <FaExclamationTriangle className="inline-block mr-2" size={20} />,
       color: "text-orange-600",
     };
-  } else if (pm25 <= 199.9) {
+  } else if (pm25 <= 150.4) {
     return {
       text: "Everyone may start to feel health effects. It's a good idea to reduce prolonged outdoor activities.",
       icon: <FaRadiation className="inline-block mr-2" size={20} />,
       color: "text-red-600",
     };
-  } else if (pm25 <= 299.9) {
+  } else if (pm25 <= 250.4) {
     return {
       text: "Serious health effects possible for everyone. Stay indoors as much as possible and wear a mask if outside.",
       icon: <FaSkullCrossbones className="inline-block mr-2" size={20} />,
@@ -70,24 +70,22 @@ const AirQualityAdvice = ({ pm25 }) => {
 
 function Dashboard() {
   const [formData, setFormData] = useState({
+    Temperature: 25,
+    Humidity: 60,
+    Pressure: 1013,
+    Wind_Speed_kmh: 7.2,
+    Visibility: 10,
+    Rainfall: 0,
+    so2: 10,
+    no2: 20,
+    PM10: 30,
     AQI: 50,
-    PM10_μgm3: 30,
-    NO2_ppb: 20,
-    Temperature_C: 25,
-    Humidity_: 60,
-    SO2_ppb: 10,
-    CO_ppm: 0.5,
-    O3_ppb: 15,
-    PM25_μgm3: 20,
-    Wind_Speed_ms: 2,
-    PM25_1hr_ago: 18,
-    PM25_2hr_ago: 19,
-    pm25_rolling_mean3: 19.5,
   });
 
   const [pm25, setPm25] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -95,10 +93,29 @@ function Dashboard() {
       ...prev,
       [name]: value ? parseFloat(value) : "",
     }));
+    // Clear error for this field when user starts typing
+    if (formErrors[name]) {
+      setFormErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    Object.keys(formData).forEach((key) => {
+      if (formData[key] === "" || formData[key] == null) {
+        errors[key] = `${formatLabel(key)} is required`;
+      }
+    });
+    return errors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
     setLoading(true);
     setError(null);
     setPm25(null);
@@ -125,17 +142,21 @@ function Dashboard() {
 
   const formatLabel = (key) => {
     let label = key.replace(/_/g, " ");
-    label = label.replace("μgm3", "µg/m³");
-    label = label.replace("ppb", "ppb");
-    label = label.replace("ppm", "ppm");
-    label = label.replace("C", "°C");
-    label = label.replace("ms", "m/s");
-    label = label.replace("Humidity", "Humidity (%)");
-    label = label.replace("Wind Speed", "Wind Speed (m/s)");
+    // label = label.replace("kmh", "km/h");
+    label = label.replace("so2", "SO2");
+    label = label.replace("no2", "NO2");
     label = label.replace("Temperature", "Temperature (°C)");
+    label = label.replace("Humidity", "Humidity (%)");
+    label = label.replace("Pressure", "Pressure (hPa)");
+    label = label.replace("Wind Speed", "Wind Speed (km/h)");
+    label = label.replace("Visibility", "Visibility (km)");
+    label = label.replace("Rainfall", "Rainfall (mm)");
+    label = label.replace("PM10", "PM10 (µg/m³)");
+    label = label.replace("SO2", "SO2 (ppb)");
+    label = label.replace("NO2", "NO2 (ppb)");
     return label;
   };
-  // new AQI
+
   const data = [
     {
       title: "PM2.5",
@@ -143,15 +164,15 @@ function Dashboard() {
       unit: "µg/m³",
       status:
         pm25 !== null
-          ? pm25 <= 49.9
+          ? pm25 <= 12.0
             ? "Good"
-            : pm25 <= 99.9
+            : pm25 <= 35.4
             ? "Moderate"
-            : pm25 <= 149.9
+            : pm25 <= 55.4
             ? "Unhealthy for Sensitive Groups"
-            : pm25 <= 199.9
+            : pm25 <= 150.4
             ? "Unhealthy"
-            : pm25 <= 299.9
+            : pm25 <= 250.4
             ? "Very Unhealthy"
             : "Hazardous"
           : "Unknown",
@@ -172,7 +193,7 @@ function Dashboard() {
 
         <section className="mb-12 max-w-3xl mx-auto">
           <div className="bg-white p-8 rounded-xl shadow-lg">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+            <h2 className="text-2xl suprang-bold text-gray-800 mb-6 text-center">
               Input Air Quality Data
             </h2>
             <div className="space-y-6">
@@ -193,9 +214,16 @@ function Dashboard() {
                       onChange={handleChange}
                       step="0.1"
                       required
-                      className="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg"
-                      placeholder={`Enter ${key}`}
+                      className={`w-full p-3 bg-gray-50 border ${
+                        formErrors[key] ? "border-red-500" : "border-gray-300"
+                      } rounded-lg`}
+                      placeholder={`Enter ${formatLabel(key)}`}
                     />
+                    {formErrors[key] && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {formErrors[key]}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
