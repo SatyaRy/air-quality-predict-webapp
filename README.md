@@ -79,6 +79,58 @@ API docs available at http://localhost:8000/docs.
             ├── Home.jsx
             └── Performance.jsx
 ```
+## Model Training
+
+### Objective 
+
+To learn how accurately the machine shows the relationship between predicted value and actual value for features such as wind speed, humidity, temperature and other factors that influence the PM2.5 level. Furthermore, it shows which features are the most influential in the model by applying the feature importances. After training the model successfully, a past dataset of the global air quality can be used by the machine to predict the future air quality by hours for each country.
+
+
+### Data Preprocessing Steps
+
+1. **Cleaned the dataset**: formatted column names, removed rows with missing or corrupt PM2.5 values.
+2. **Parsed time data**: converted to datetime and sorted chronologically.
+3. **Feature engineering**:
+   - Added time-based features (e.g., hour, day).
+   - Created lag features (e.g., PM2.5 one hour ago).
+4. **Split the data**: 8-% for training, 20% for testing using ```train_test_split``` from ```scikit-learn```
+
+
+### Library Used
+
+- ```Scikit-learn```: popular ML algorithms and tools
+- ```Xgboost```: a gradient boosting framework for supervised learning
+- ```Numpy ```: fundamental for numerical computation
+- ```Scipy```: scientific computing, often used alongside NumPy in ML
+- ```Pandas```: data manipulation and analysis, heavily used in ML workflows
+- ```Joblib```: used to efficiently save/load models and parallel computing
+- ```Threadpoolctl```: Controls thread usage in libraries like NumPy and scikit-learn
+- ```Matplotlib```: Visualizing the result
+
+### Visual Evaluation
+``` bash
+plt.figure(figsize=(12,6))
+plt.plot(actual_values, label='Actual PM2.5', color='blue')
+plt.plot(predicted_values, label='Predicted PM2.5', color='red')
+plt.title("XGBoost: Actual vs Predicted PM2.5 (First 100 Samples)")
+plt.xlabel("Sample")
+plt.ylabel("PM2.5 Level (µg/m³)")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+```
+
+### Challenges Faced
+- Difficulty in obtaining recent and clean datasets.
+- High evaluation metrics with early models.
+- Model selection issues:
+  - **Linear Regression**: Poor performance.
+  - **Random Forest**: Better but still inaccurate.
+  - **XGBoost**: Provided the best balance between accuracy and interpretability.
+ 
+### Model Limitations
+- Model’s result depending on PM2.5 readings might miss some data that can degrade the performance.
 
 
 
