@@ -127,6 +127,11 @@ Defines the data structure expected in API requests using Pydantic.
 - Helps with validation, error handling, and clear API documentation in FastAPI. 
 
 
+## Contributors
+
+- [@Sovitou](https://github.com/Sovitou) – Khem Sovitou
+- [@SatyaRy](https://github.com/SatyaRy) – Ry Satya
+- [@ssokull](https://github.com/ssokull) – Chhay Vansomanea
 
 
 
